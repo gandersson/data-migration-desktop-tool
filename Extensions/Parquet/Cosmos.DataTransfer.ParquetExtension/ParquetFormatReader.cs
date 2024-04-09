@@ -25,7 +25,17 @@ namespace Cosmos.DataTransfer.ParquetExtension
                 {
                     var seekableStream = source;
                     using var tempStream = new MemoryStream();
-                    if (source.CanSeek == false || !source.TryGetSize(out _))
+                    var canGetSize=true;
+                    try
+                    {
+                        var size = source.Length;
+                        canGetSize = true;
+                    }
+                    catch (Exception e)
+                    {
+                        canGetSize= false;
+                    }
+                    if (source.CanSeek == false || canGetSize)
                     {
                         logger.LogInformation("Source stream is not seekable or size is not known. Copying to temporary stream.");
                         await seekableStream.CopyToAsync(tempStream, cancellationToken);
